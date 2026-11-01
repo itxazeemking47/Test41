@@ -1,7 +1,381 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eBay UK Product Hunt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #edf0f4;
+    --surface: #ffffff;
+    --ink: #121a2b;
+    --muted: #586377;
+    --line: #d5dbe4;
+    --accent: #0b6e6e;
+    --accent-dark: #095858;
+    --running: #a9690b;
+    --ok: #1d7a4b;
+    --err: #b42318;
+    --err-bg: #fdf0ee;
+    --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+  .wrap { max-width: 940px; margin: 0 auto; padding: 0 24px; }
+
+  header { padding: 26px 0; }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 700; font-size: 1.1rem; text-decoration: none; }
+  .brand svg { width: 30px; height: 30px; }
+  nav { display: flex; gap: 22px; font-size: 0.95rem; }
+  nav a { color: var(--muted); text-decoration: none; font-weight: 500; }
+  nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+
+  .hero { padding: 36px 0 8px; }
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(2.5rem, 7vw, 4.4rem);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    margin: 0 0 20px;
+    max-width: 15ch;
+  }
+  .lead { max-width: 56ch; color: var(--muted); font-size: 1.1rem; margin: 0 0 30px; }
+
+  .btn {
+    font-family: var(--body);
+    font-size: 1.05rem;
+    font-weight: 600;
+    min-height: 56px;
+    padding: 0 30px;
+    border-radius: 14px;
+    border: 0;
+    cursor: pointer;
+    background: var(--accent);
+    color: #fff;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+  }
+  .btn:hover:not(:disabled) { background: var(--accent-dark); }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .btn:disabled { background: #9aa6b8; cursor: not-allowed; }
+  .btn.secondary { background: transparent; color: var(--ink); border: 1.5px solid var(--ink); }
+  .btn.secondary:hover:not(:disabled) { background: var(--ink); color: #fff; }
+  .hint { margin: 14px 0 0; font-size: 0.92rem; color: var(--muted); }
+
+  .panel {
+    margin: 44px 0 0;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 32px;
+  }
+  .panel[hidden] { display: none; }
+  .panel h2 { font-family: var(--display); font-size: 1.5rem; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .panel p { margin: 0; color: var(--muted); }
+
+  /* running */
+  .clock {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: clamp(3.8rem, 14vw, 7rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    color: var(--running);
+    margin: 22px 0 18px;
+  }
+  .track { height: 6px; background: #efe3cc; border-radius: 99px; overflow: hidden; margin-bottom: 20px; }
+  .track span { display: block; width: 28%; height: 100%; background: var(--running); border-radius: 99px; animation: slide 1.8s ease-in-out infinite; }
+  @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(360%); } }
+
+  /* results */
+  .summary { display: flex; flex-wrap: wrap; gap: 14px 40px; margin: 22px 0 8px; padding: 0; list-style: none; }
+  .summary li { display: flex; flex-direction: column; }
+  .summary strong { font-family: var(--display); font-size: 2rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .summary span { font-size: 0.9rem; color: var(--muted); }
+  .done h2 { color: var(--ok); }
+
+  .products { list-style: none; margin: 26px 0 0; padding: 0; border-top: 1px solid var(--line); }
+  .product { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr); gap: 16px 28px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+  .product .title { font-weight: 600; font-size: 1.02rem; line-height: 1.4; overflow-wrap: anywhere; }
+  .cell .shop { font-size: 0.88rem; color: var(--muted); display: block; }
+  .cell .price { font-family: var(--display); font-weight: 700; font-size: 1.35rem; display: block; margin: 2px 0 4px; overflow-wrap: anywhere; }
+  .cell a { font-size: 0.92rem; font-weight: 500; color: var(--accent); text-underline-offset: 3px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+
+  /* error */
+  .failed { background: var(--err-bg); border-color: #f0c4be; }
+  .failed h2 { color: var(--err); }
+  .failed .detail { margin-top: 12px; color: var(--ink); overflow-wrap: anywhere; }
+
+  footer { padding: 52px 0 40px; color: var(--muted); font-size: 0.9rem; }
+
+  @media (max-width: 720px) {
+    .wrap { padding: 0 18px; }
+    .panel { padding: 24px 20px; border-radius: 16px; }
+    .product { grid-template-columns: 1fr 1fr; }
+    .product .title { grid-column: 1 / -1; }
+    nav { gap: 16px; }
+    .btn { width: 100%; }
+    .actions .btn { width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .track span { animation: none; width: 100%; opacity: 0.55; }
+    .btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="eBay UK Product Hunt">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0b6e6e"/><circle cx="14" cy="14" r="6.2" fill="none" stroke="#fff" stroke-width="2.4"/><path d="M19 19l6 6" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>
+      Product Hunt
+    </a>
+    <nav aria-label="Shortcuts">
+      <a id="linkSheet" href="#" target="_blank" rel="noopener noreferrer">Google Sheet</a>
+      <a id="linkStrategy" href="#" target="_blank" rel="noopener noreferrer">Strategy</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="wrap hero">
+    <h1>Run today’s product hunt</h1>
+    <p class="lead">One click searches eBay UK, finds each product on AliExpress and adds the results to your Google Sheet. A run takes about five minutes.</p>
+    <button id="startBtn" class="btn" type="button">Start product hunt</button>
+    <p class="hint" id="hint">New products are added below your existing rows. Nothing is deleted.</p>
+
+    <div id="panel" class="panel" aria-live="polite" hidden></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">What counts as a winning product is set in the Strategy document. Change it there and the next run follows it.</div>
+</footer>
+
+<script>
+  /* ---------- Settings: change these three links only ---------- */
+  const CONFIG = {
+    startUrl:  'https://test41.app.n8n.cloud/webhook/ebay-product-hunt',
+    statusUrl: 'https://test41.app.n8n.cloud/webhook/ebay-product-hunt-status',
+    sheetUrl:  'https://docs.google.com/spreadsheets/d/1AkKnM8XPjv5WsDrX8riZP1yM6hyd8w09nDWZ5r-cV7Y/edit#gid=1121971064',
+    strategyUrl: 'https://docs.google.com/document/d/1_dCidp9XaPNNUQO89mizXjSkOXpfUAwRj7pVwZUTbzQ/edit',
+    pollSeconds: 6,        // how often the page asks for the report
+    giveUpMinutes: 20      // stop waiting after this long
+  };
+  /* ------------------------------------------------------------- */
+
+  const STORE_KEY = 'ebayHunt.activeRun';
+  const startBtn = document.getElementById('startBtn');
+  const hint = document.getElementById('hint');
+  const panel = document.getElementById('panel');
+  document.getElementById('linkSheet').href = CONFIG.sheetUrl;
+  document.getElementById('linkStrategy').href = CONFIG.strategyUrl;
+
+  let tickTimer = null;
+  let pollTimer = null;
+  let failedPolls = 0;
+
+  const save = (v) => { try { v ? localStorage.setItem(STORE_KEY, JSON.stringify(v)) : localStorage.removeItem(STORE_KEY); } catch (e) {} };
+  const load = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; } };
+
+  function el(tag, props, children) {
+    const node = document.createElement(tag);
+    Object.entries(props || {}).forEach(([k, v]) => {
+      if (k === 'class') node.className = v;
+      else if (k === 'text') node.textContent = v;
+      else node.setAttribute(k, v);
+    });
+    (children || []).forEach((c) => node.appendChild(c));
+    return node;
+  }
+  function safeUrl(u) { return /^https?:\/\//i.test(String(u || '')) ? String(u) : ''; }
+  function fmtClock(sec) {
+    const m = Math.floor(sec / 60), s = sec % 60;
+    return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  }
+  function fmtDuration(sec) {
+    sec = Math.max(0, Math.round(Number(sec) || 0));
+    if (sec < 60) return sec + ' s';
+    return Math.floor(sec / 60) + ' min ' + (sec % 60) + ' s';
+  }
+  function show(node, cls) {
+    panel.hidden = false;
+    panel.className = 'panel' + (cls ? ' ' + cls : '');
+    panel.replaceChildren(node);
+  }
+  function stopTimers() { clearInterval(tickTimer); clearTimeout(pollTimer); tickTimer = pollTimer = null; }
+  function setBusy(busy) {
+    startBtn.disabled = busy;
+    startBtn.textContent = busy ? 'Hunt in progress' : 'Start another hunt';
+  }
+
+  /* ---------- states ---------- */
+  function showRunning(startedAtMs) {
+    const clock = el('div', { class: 'clock', 'aria-hidden': 'true', text: '00:00' });
+    const wrap = el('div', {}, [
+      el('h2', { text: 'Hunting products' }),
+      el('p', { text: 'Searching eBay UK and AliExpress. Keep this page open. The report appears here when the sheet is updated.' }),
+      clock,
+      el('div', { class: 'track', 'aria-hidden': 'true' }, [el('span')]),
+      el('p', { text: 'Time elapsed since you started.' })
+    ]);
+    show(wrap);
+    const tick = () => { clock.textContent = fmtClock(Math.floor((Date.now() - startedAtMs) / 1000)); };
+    tick();
+    clearInterval(tickTimer);
+    tickTimer = setInterval(tick, 1000);
+  }
+
+  function showReport(r) {
+    const products = Array.isArray(r.products) ? r.products : [];
+    const added = Number(r.productsAdded) || 0;
+    const list = el('ul', { class: 'products' });
+    products.forEach((p) => {
+      const eb = safeUrl(p.ebayLink), ali = safeUrl(p.aliExpressLink);
+      const ebCell = el('div', { class: 'cell' }, [
+        el('span', { class: 'shop', text: 'eBay UK' }),
+        el('span', { class: 'price', text: p.ebayPrice || '-' })
+      ]);
+      if (eb) ebCell.appendChild(el('a', { href: eb, target: '_blank', rel: 'noopener noreferrer', text: 'View listing' }));
+      const aliCell = el('div', { class: 'cell' }, [
+        el('span', { class: 'shop', text: 'AliExpress' }),
+        el('span', { class: 'price', text: p.aliExpressPrice || '-' })
+      ]);
+      if (ali) aliCell.appendChild(el('a', { href: ali, target: '_blank', rel: 'noopener noreferrer', text: 'View listing' }));
+      list.appendChild(el('li', { class: 'product' }, [
+        el('div', { class: 'title', text: p.title || 'Untitled product' }), ebCell, aliCell
+      ]));
+    });
+
+    const summary = el('ul', { class: 'summary' }, [
+      el('li', {}, [el('strong', { text: String(added) }), el('span', { text: added === 1 ? 'product added' : 'products added' })]),
+      el('li', {}, [el('strong', { text: fmtDuration(r.durationSec) }), el('span', { text: 'time taken' })]),
+      el('li', {}, [el('strong', { text: '#' + (r.runId || '') }), el('span', { text: 'run number' })])
+    ]);
+
+    const actions = el('div', { class: 'actions' }, [
+      el('a', { class: 'btn', href: CONFIG.sheetUrl, target: '_blank', rel: 'noopener noreferrer', text: 'Open Google Sheet', style: 'display:inline-flex;align-items:center;justify-content:center;text-decoration:none;' })
+    ]);
+
+    const kids = [
+      el('h2', { text: added > 0 ? 'Hunt finished' : 'Hunt finished with no matches' }),
+      el('p', { text: r.message || '' }),
+      summary
+    ];
+    if (products.length) kids.push(list);
+    kids.push(actions);
+    show(el('div', { class: 'done' }, kids));
+  }
+
+  function showError(title, detail, withSheet) {
+    const kids = [el('h2', { text: title }), el('div', { class: 'detail', text: detail })];
+    if (withSheet) {
+      kids.push(el('div', { class: 'actions' }, [
+        el('a', { class: 'btn secondary', href: CONFIG.sheetUrl, target: '_blank', rel: 'noopener noreferrer', text: 'Check Google Sheet', style: 'display:inline-flex;align-items:center;justify-content:center;text-decoration:none;' })
+      ]));
+    }
+    show(el('div', {}, kids), 'failed');
+  }
+
+  /* ---------- flow ---------- */
+  async function startHunt() {
+    stopTimers();
+    failedPolls = 0;
+    setBusy(true);
+    hint.textContent = 'Starting the workflow…';
+    try {
+      const res = await fetch(CONFIG.startUrl, { method: 'POST' });
+      if (!res.ok) throw new Error('The workflow answered with status ' + res.status + '.');
+      const data = await res.json();
+      if (!data || !data.runId) throw new Error('The workflow did not return a run number.');
+      const run = { runId: String(data.runId), startedAt: Date.now() };
+      save(run);
+      hint.textContent = 'Run #' + run.runId + ' started. New products are added below your existing rows.';
+      showRunning(run.startedAt);
+      schedulePoll(run);
+    } catch (err) {
+      setBusy(false);
+      startBtn.textContent = 'Try again';
+      hint.textContent = 'New products are added below your existing rows. Nothing is deleted.';
+      showError('The hunt could not start',
+        'Check that the workflow is published in n8n and that you are online. Details: ' + err.message, false);
+    }
+  }
+
+  function schedulePoll(run) {
+    pollTimer = setTimeout(() => poll(run), CONFIG.pollSeconds * 1000);
+  }
+
+  async function poll(run) {
+    if (Date.now() - run.startedAt > CONFIG.giveUpMinutes * 60 * 1000) {
+      stopTimers(); save(null); setBusy(false);
+      showError('This run is taking longer than expected',
+        'No report arrived after ' + CONFIG.giveUpMinutes + ' minutes. Some products may already be in the sheet, so check it before starting again.', true);
+      return;
+    }
+    try {
+      const res = await fetch(CONFIG.statusUrl + '?runId=' + encodeURIComponent(run.runId), { cache: 'no-store' });
+      if (!res.ok) throw new Error('status ' + res.status);
+      const r = await res.json();
+      failedPolls = 0;
+      if (r.status === 'success') {
+        stopTimers(); save(null); setBusy(false); showReport(r);
+        return;
+      }
+      if (r.status === 'error') {
+        stopTimers(); save(null); setBusy(false);
+        showError('The hunt stopped with an error', r.message || 'The workflow reported an error.', false);
+        return;
+      }
+    } catch (err) {
+      failedPolls += 1;
+      if (failedPolls >= 5) {
+        stopTimers(); setBusy(false);
+        showError('Lost connection to the workflow',
+          'The run may still be going. Check the Google Sheet in a few minutes, or reload this page to keep waiting.', true);
+        return;
+      }
+    }
+    schedulePoll(run);
+  }
+
+  startBtn.addEventListener('click', startHunt);
+
+  /* Resume a run if the page was reloaded while it was in progress */
+  const saved = load();
+  if (saved && saved.runId && Date.now() - saved.startedAt < CONFIG.giveUpMinutes * 60 * 1000) {
+    setBusy(true);
+    hint.textContent = 'Run #' + saved.runId + ' is still in progress.';
+    showRunning(saved.startedAt);
+    poll(saved);
+  } else if (saved) {
+    save(null);
+  }
+</script>
+</body>
+</html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>NovaFlow — AI Automation Command Center</title>
